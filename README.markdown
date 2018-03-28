@@ -397,7 +397,7 @@ Hostname of the (external) Sentry service. Default: undef.
 
 Non-empty value will enable Hive settings needed to use Sentry authorization service.
 
-When sentry is enabled, yu will need also *hive* user added to *allowed.system.users* in Hadoop YARN containers.
+When sentry is enabled, you will need also *hive* user added to *allowed.system.users* in Hadoop YARN containers.
 
 ####`server2_hostname`
 
