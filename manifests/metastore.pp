@@ -7,8 +7,8 @@ class hive::metastore {
   include ::hive::metastore::config
   include ::hive::metastore::service
 
-  Class['hive::metastore::install'] ->
-  Class['hive::metastore::config'] ~>
-  Class['hive::metastore::service'] ->
-  Class['hive::metastore']
+  Class['hive::metastore::install']
+  -> Class['hive::metastore::config']
+  ~> Class['hive::metastore::service']
+  -> Class['hive::metastore']
 }

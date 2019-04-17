@@ -8,7 +8,7 @@ class hive::hcatalog {
   include ::hive::hcatalog::install
   include ::hive::hcatalog::config
 
-  Class['hive::hcatalog::install'] ->
-  Class['hive::hcatalog::config'] ->
-  Class['hive::hcatalog']
+  Class['hive::hcatalog::install']
+  -> Class['hive::hcatalog::config']
+  -> Class['hive::hcatalog']
 }
