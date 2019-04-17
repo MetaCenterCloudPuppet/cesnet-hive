@@ -17,6 +17,7 @@
     * [Upgrade](#upgrade)
 4. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
     * [Classes](#classes)
+    * [Facts](#facts)
     * [Module Parameters (hive class)](#class-hive)
 5. [Limitations - OS compatibility, etc.](#limitations)
 6. [Development - Guide for contributing to the module](#development)
@@ -51,6 +52,7 @@ Supported are:
 * Helper Files:
  * */var/lib/hadoop-hdfs/.puppet-hive-dir-created* (created by cesnet-hadoop module)
 * Secret Files (keytabs): permissions are modified for hive service keytab (*/etc/security/keytab/hive.service.keytab*)
+* Facts: `hive_schemas` (`stringify_facts=false` is needed when using this fact)
 
 <a name="setup-requirements"></a>
 ###Setup Requirements
@@ -155,16 +157,18 @@ Add this to the initial example:
         root_password  => 'strongpassword',
       }
 
-      # proper schema file is needed (hive-schema-0.13.0.mysql.sql, ...)
+      # hive schema file (stringify_facts=false configuration is needed when using the fact!)
       # (there is also bug HIVE-6559)
-      $hive_path='/usr/lib/hive/scripts/metastore/upgrade/mysql'
-      $hive_schema='hive-schema-1.1.0.mysql.sql'
+	  $hive_path='/usr/lib/hive/scripts/metastore/upgrade/mysql'
+      $hive_schema=$::hive_schemas['mysql']
+      #or hardcode:
+      #$hive_schema='/usr/lib/hive/scripts/metastore/upgrade/mysql/hive-schema-1.1.0.mysql.sql'
 
       Class['hive::metastore::install']
       ->
       exec{ 'hive-bug':
-        command => "sed -i ${hive_path}/${hive_schema} -e 's,^SOURCE hive,SOURCE ${hive_path}/hive,'",
-        unless  => "grep 'SOURCE ${hive_path}' ${hive_path}/${hive_schema}",
+        command => "sed -i ${hive_schema} -e 's,^SOURCE hive,SOURCE ${hive_path}/hive,'",
+        unless  => "grep 'SOURCE ${hive_path}' ${hive_schema}",
         path    => '/sbin:/usr/sbin:/bin:/usr/bin',
       }
       ->
@@ -172,7 +176,7 @@ Add this to the initial example:
         user     => 'hive',
         password => 'hivepassword',
         grant    => ['SELECT', 'INSERT', 'UPDATE', 'DELETE'],
-        sql      => "${hive_path}/${hive_schema}",
+        sql      => $hive_schema,
       }
     
       class { 'mysql::bindings':
@@ -205,13 +209,16 @@ Add this to the initial example:
         postgres_password => 'strongpassword',
       }
 
+      $hive_schema=$::hive_schemas['postgres']
+      #or hardcode:
+      #$hive_schema='/usr/lib/hive/scripts/metastore/upgrade/postgres/hive-schema-0.13.0.postgres.sql'
       postgresql::server::db { 'metastore':
         user     => 'hive',
         password => postgresql_password('hive', 'hivepass'),
       }
       ->
       exec { 'metastore-import':
-        command => 'cat /usr/lib/hive/scripts/metastore/upgrade/postgres/hive-schema-0.13.0.postgres.sql | psql metastore && touch /var/lib/hive/.puppet-hive-schema-imported',
+        command => "cat ${hive_schema} | psql metastore && touch /var/lib/hive/.puppet-hive-schema-imported",
         path    => '/bin/:/usr/bin',
         user    => 'hive',
         creates => '/var/lib/hive/.puppet-hive-schema-imported',
@@ -367,6 +374,11 @@ For example (using mysql, from Hive 0.13.0):
  * `hive::server2::service`
 * **`hive::user`**: Create hive system user, if needed
 * **`hive::worker`**: Hive support at the worker node
+
+<a name="facts"></a>
+###Facts
+
+* **`hive_schemas`**: database schema file for each database backend
 
 <a name="class-hive"></a>
 ###`hive` class
