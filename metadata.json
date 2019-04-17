@@ -1,11 +1,11 @@
 {
   "name": "cesnet-hive",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "author": "Frantisek Dvorak <valtri@civ.zcu.cz>",
   "summary": "Apache Hive Puppet Module",
   "license": "MIT",
   "source": "https://github.com/MetaCenterCloudPuppet/cesnet-hive",
-  "project_page": "https://github.com/MetaCenterCloudPuppet",
+  "project_page": "https://github.com/MetaCenterCloudPuppet/cesnet-hive",
   "issues_url": "https://github.com/MetaCenterCloudPuppet/cesnet-hive/issues",
   "tags": ["hadoop", "hive"],
   "operatingsystem_support": [
@@ -15,7 +15,7 @@
     },
     {
       "operatingsystem": "Debian",
-      "operatingsystemrelease": ["7"]
+      "operatingsystemrelease": ["7", "8", "9"]
     },
     {
       "operatingsystem": "RedHat",
@@ -27,7 +27,7 @@
     },
     {
       "operatingsystem": "Ubuntu",
-      "operatingsystemrelease": ["14.04"]
+      "operatingsystemrelease": ["14.04", "18.04"]
     }
   ],
   "requirements": [
