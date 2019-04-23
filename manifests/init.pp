@@ -14,12 +14,15 @@ class hive (
   $properties = undef,
   $descriptions = undef,
   $alternatives = '::default',
+  $database_setup_enable = true,
   $db = undef,
   $db_host = $hive::params::db_host,
   $db_user = $hive::params::db_user,
   $db_name = $hive::params::db_name,
   $db_password = undef,
   $features = {},
+  $schema_dir = undef,
+  $schema_file = undef,
 ) inherits hive::params {
   include ::stdlib
 

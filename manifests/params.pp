@@ -40,4 +40,12 @@ class hive::params {
   $db_user = 'hive'
   $db_host = 'localhost'
   $port = 9083
+  $schema_base_dir = '/usr/lib/hive/scripts/metastore/upgrade'
+  $schema_dirs = {
+    'derby' => undef,
+    'mssql' => "${schema_base_dir}/mssql",
+    'mysql' => "${schema_base_dir}/mysql",
+    'oracle' => "${schema_base_dir}/oracle",
+    'postgresql' => "${schema_base_dir}/postgres",
+  }
 }

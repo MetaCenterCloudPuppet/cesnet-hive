@@ -3,6 +3,8 @@
 # Common settings for Hive daemons.
 #
 class hive::common::daemon {
+  include ::hive::user
+
   $keytab = '/etc/security/keytab/hive.service.keytab'
 
   if $hive::realm and $hive::realm != '' {
@@ -23,4 +25,6 @@ class hive::common::daemon {
       content => template('hive/hivemanager.erb'),
     }
   }
+
+  Class['hive::user'] -> Class['hive::common::daemon']
 }

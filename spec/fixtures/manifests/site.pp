@@ -5,5 +5,7 @@ class{'hadoop':
 }
 
 class{'hive':
+  db    => 'mysql',
+  #db    => 'postgresql',
   realm => $realm,
 }

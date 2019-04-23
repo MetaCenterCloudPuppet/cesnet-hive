@@ -27,10 +27,11 @@
 
 This module installs and setups Apache Hive data warehouse software running on the top of Hadoop cluster. Hive services can be collocated or separated with other services in the cluster. Optionally security based on Kerberos can be enabled. Security should be enabled if Hadoop cluster security is enabled.
 
-Supported are:
+Puppet client configured with `stringify_facts=false` is recommended, but not required (see also [schema\_file](#schema_file) parameter).
 
-* **Fedora**: only hive and hcatalog clients, native packages (tested on Hive 0.12.0)
-* **Debian 7/wheezy**: Cloudera distribution (tested on Hive 0.13.1)
+Tested with:
+
+* **Debian 7/wheezy, 8/jessie**: Cloudera distribution (tested on Hive 0.13.1, 2.1.1)
 * **RHEL 6 and clones**: Cloudera distribution (tested with Hadoop 2.6.0)
 
 <a name="setup"></a>
@@ -53,6 +54,7 @@ Supported are:
  * */var/lib/hadoop-hdfs/.puppet-hive-dir-created* (created by cesnet-hadoop module)
 * Secret Files (keytabs): permissions are modified for hive service keytab (*/etc/security/keytab/hive.service.keytab*)
 * Facts: `hive_schemas` (`stringify_facts=false` is needed when using this fact)
+* Databases: for supported databases (when not disabled): user created and database schema imported using puppetlabs modules
 
 <a name="setup-requirements"></a>
 ###Setup Requirements
@@ -67,7 +69,7 @@ Be aware of:
 
 * **Secure mode**: keytabs must be prepared in */etc/security/keytabs/* (see *realm* parameter)
 
-* **Database setup not handled here**: basic database setup and database creation needs to be handled externally; tested are puppetlabs-mysql and puppetlabs-postgresql modules (see examples), but it is not limited to these modules
+* **Database setup**: MariaDB/MySQL or PostgreSQL are supported. You need to install puppetlabs-mysql or puppetlabs-postgresql module, because they are not in dependencies.
 
 * **Hadoop**: it should be configured locally or you should use *hdfs\_hostname* parameter (see [Module Parameters](#class-hive))
 
@@ -140,7 +142,7 @@ Additional permissions in Hadoop cluster are needed: add hive proxy user.
 Use nodes sections from the initial **Example**, modify *$::fqdn* and nodes sections as needed.
 
 
-**Example 2**: MySQL database, puppetlabs-mysql puppet module is used here.
+**Example 2**: MySQL database, puppetlabs-mysql puppet module must be installed.
 
 Add this to the initial example:
 
@@ -157,42 +159,7 @@ Add this to the initial example:
         root_password  => 'strongpassword',
       }
 
-      # hive schema file (stringify_facts=false configuration is needed when using the fact!)
-      # (there is also bug HIVE-6559)
-	  $hive_path='/usr/lib/hive/scripts/metastore/upgrade/mysql'
-      $hive_schema=$::hive_schemas['mysql']
-      #or hardcode:
-      #$hive_schema='/usr/lib/hive/scripts/metastore/upgrade/mysql/hive-schema-1.1.0.mysql.sql'
-
-      Class['hive::metastore::install']
-      ->
-      exec{ 'hive-bug':
-        command => "sed -i ${hive_schema} -e 's,^SOURCE hive,SOURCE ${hive_path}/hive,'",
-        unless  => "grep 'SOURCE ${hive_path}' ${hive_schema}",
-        path    => '/sbin:/usr/sbin:/bin:/usr/bin',
-      }
-      ->
-      mysql::db { 'metastore':
-        user     => 'hive',
-        password => 'hivepassword',
-        grant    => ['SELECT', 'INSERT', 'UPDATE', 'DELETE'],
-        sql      => $hive_schema,
-      }
-    
-      class { 'mysql::bindings':
-        java_enable => true,
-      }
-    
-      Mysql::Db['metastore'] -> Class['hive::metastore::service']
-      Class['mysql::bindings'] -> Class['hive::metastore::config']
-    }
-
-As you can see, between *hive::metastore::install* and *hive::metastore::service* is included creation of the metastore MySQL database. The reason is the required schema SQL file goes from Hive packages, and the database is then needed for running Hive metastore.
-
-The JDBC jar-file is also needed for metastore.
-
-
-**Example 3**: PostgreSQL database, puppetlabs-postgresql puppet module is used here.
+**Example 3**: PostgreSQL database, puppetlabs-postgresql puppet module must be installed.
 
 Add this to the initial example:
 
@@ -208,33 +175,8 @@ Add this to the initial example:
       class { 'postgresql::server':
         postgres_password => 'strongpassword',
       }
-
-      $hive_schema=$::hive_schemas['postgres']
-      #or hardcode:
-      #$hive_schema='/usr/lib/hive/scripts/metastore/upgrade/postgres/hive-schema-0.13.0.postgres.sql'
-      postgresql::server::db { 'metastore':
-        user     => 'hive',
-        password => postgresql_password('hive', 'hivepass'),
-      }
-      ->
-      exec { 'metastore-import':
-        command => "cat ${hive_schema} | psql metastore && touch /var/lib/hive/.puppet-hive-schema-imported",
-        path    => '/bin/:/usr/bin',
-        user    => 'hive',
-        creates => '/var/lib/hive/.puppet-hive-schema-imported',
-      }
-
-      include postgresql::lib::java
-
-      Class['postgresql::lib::java'] -> Class['hive::metastore::config']
-      Class['hive::metastore::install'] -> Postgresql::Server::Db['metastore']
-      Postgresql::Server::Db['metastore'] -> Class['hive::metastore::service']
-      Exec['metastore-import'] -> Class['hive::metastore::service']
+      ...
     }
-
-Like with MySQL, between *hive::metastore::install* and *hive::metastore::service* is included creation of the metastore database, now PostgreSQL. The reason is the required schema SQL file goes from Hive packages, and the database is then needed for running Hive metastore.
-
-The JDBC jar-file is also needed for metastore.
 
 
 <a name="security"></a>
@@ -367,6 +309,7 @@ For example (using mysql, from Hive 0.13.0):
 * **`hive::metastore`**: Hive Metastore
  * `hive::metastore::config`
  * `hive::metastore::install`
+ * `hive::metastore::db`
  * `hive::metastore::service`
 * **`hive::server2`**: Hive Server
  * `hive::server2::config`
@@ -449,6 +392,10 @@ Switches the alternatives used for the configuration. Default: 'cluster' (Debian
 
 Use it only when supported (for example with Cloudera distribution).
 
+####`database_setup_enable`
+
+Enables database setup (if suported). Default: true.
+
 ####`db`
 
 Database behind the metastore. Default: undef.
@@ -489,13 +436,25 @@ Values:
 
 * **manager** - script in /usr/local to start/stop Hive daemons relevant for given node
 
+####`schema_dir`
+
+Hive directory with database schemas. Default: undef (*/usr/lib/hive/scripts/metastore/upgrade*).
+
+####`schema_file`
+
+Hive database schema file. Default: undef (autodetect).
+
+Autodetection requires puppet configured with `stringify_facts=false`. But the value can be set directly instead (for example `hive-schema-2.1.1.mysql.sql`).
+
 
 <a name="limitations"></a>
 ##Limitations
 
-Idea in this module is to do only one thing - setup Hive SW - and not limit generic usage of this module by doing other stuff. You can have your own repository with Hadoop SW, you can select which Kerberos implementation, Java version, or database puppet module to use.
+Idea in this module is to do only one thing - setup Hive SW - and not limit generic usage of this module by doing other stuff. You can have your own repository with Hadoop SW, you can select which Kerberos implementation to use, or Java version.
 
 On other hand this leads to some limitations as mentioned in [Setup Requirements](#setup-requirements) section and usage is more complicated - you may need site-specific puppet module together with this one, like [cesnet-site\_hadoop](https://forge.puppetlabs.com/cesnet/site_hadoop).
+
+For database there are used *puppetlabs-mysql* and *puppetlabs-postgresql* modules, but they are not in dependencies. You can disable database setup altogether with *database\_setup\_enable* parameter.
 
 <a name="development"></a>
 ##Development
@@ -504,4 +463,3 @@ On other hand this leads to some limitations as mentioned in [Setup Requirements
 * Tests:
  * basic: see *.travis.yml*
  * vagrant: [https://github.com/MetaCenterCloudPuppet/hadoop-tests](https://github.com/MetaCenterCloudPuppet/hadoop-tests)
-* Email: František Dvořák &lt;valtri@civ.zcu.cz&gt;

@@ -7,5 +7,11 @@ fixtures:
     alternatives: "git://github.com/puppet-community/puppet-alternatives"
     hadoop: "git://github.com/MetaCenterCloudPuppet/cesnet-hadoop"
     hadoop_lib: "git://github.com/MetaCenterCloudPuppet/cesnet-hadoop_lib"
+    mysql:
+      repo: "https://github.com/puppetlabs/puppetlabs-mysql.git"
+      # for tests with puppet < 4
+      ref: "3.11.0"
+    #postgresql:
+    #  repo: "https://github.com/puppetlabs/puppetlabs-postgresql.git"
   symlinks:
     hive: "#{source_dir}"
