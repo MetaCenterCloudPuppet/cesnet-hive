@@ -12,4 +12,7 @@ class hive::metastore {
   -> Class['hive::metastore::config']
   ~> Class['hive::metastore::service']
   -> Class['hive::metastore']
+
+  Class['hive::metastore::db']
+  ~> Class['hive::metastore::service']
 }

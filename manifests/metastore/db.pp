@@ -2,7 +2,7 @@
 #
 # Initialize Hive metastore database.
 #
-# Requires all install, config, and service classes.
+# Requires included all install, config, and service classes, but the dependencies themselves are inside.
 #
 class hive::metastore::db {
   include ::stdlib
@@ -44,9 +44,6 @@ class hive::metastore::db {
 
   if $::hive::db and $::hive::database_setup_enable and $schema_file {
     if $db == 'mysql' {
-      include ::mysql::server
-      include ::mysql::bindings
-
       #
       # ERROR at line 822: Failed to open file 'hive-txn-schema-0.13.0.mysql.sql', error: 2
       # (resurrection of HIVE-6559, https://issues.apache.org/jira/browse/HIVE-6559)
@@ -61,25 +58,22 @@ class hive::metastore::db {
         path    => '/sbin:/usr/sbin:/bin:/usr/bin',
       }
       ->
-      mysql::db { 'metastore':
-        user     => 'hive',
-        password => $hive::db_password,
+      mysql::db { $::hive::db_name:
+        user     => $::hive::db_user,
+        password => $::hive::db_password,
         grant    => ['SELECT', 'INSERT', 'UPDATE', 'DELETE'],
         sql      => $schema_file,
       }
 
-      Class['hive::metastore::install'] -> Mysql::Db['metastore']
-      Mysql::Db['metastore'] -> Class['hive::metastore::service']
+      Class['hive::metastore::install'] -> Mysql::Db[$::hive::db_name]
+      Mysql::Db[$::hive::db_name] -> Class['hive::metastore::service']
       Class['mysql::bindings'] -> Class['hive::metastore::config']
     }
 
     if ($db == 'postgresql') {
-      include postgresql::server
-      include postgresql::lib::java
-
-      postgresql::server::db { 'metastore':
-        user     => 'hive',
-        password => postgresql_password('hive', 'hivepass'),
+      postgresql::server::db { $::hive::db_name:
+        user     => $::hive::db_user,
+        password => postgresql_password($::hive::db_user, $::hive::db_password),
       }
       ->
       exec { 'metastore-import':
@@ -91,8 +85,8 @@ class hive::metastore::db {
 
       include postgresql::lib::java
 
-      Class['hive::metastore::install'] -> Postgresql::Server::Db['metastore']
-      Postgresql::Server::Db['metastore'] -> Class['hive::metastore::service']
+      Class['hive::metastore::install'] -> Postgresql::Server::Db[$::hive::db_name]
+      Postgresql::Server::Db[$::hive::db_name] -> Class['hive::metastore::service']
       Exec['metastore-import'] -> Class['hive::metastore::service']
       Class['postgresql::lib::java'] -> Class['hive::metastore::config']
     }

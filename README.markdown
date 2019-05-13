@@ -148,7 +148,7 @@ Add this to the initial example:
 
     class{"hive":
       ...
-      db => 'mysql',
+      db          => 'mysql',
       db_password => 'hivepassword',
     }
 
@@ -159,13 +159,20 @@ Add this to the initial example:
         root_password  => 'strongpassword',
       }
 
+      class { 'mysql::bindings':
+        java_enable => true,
+      }
+    }
+
+Database is created in *hive::metastore::db* (*hive::metastore*) class.
+
 **Example 3**: PostgreSQL database, puppetlabs-postgresql puppet module must be installed.
 
 Add this to the initial example:
 
     class{"hive":
       ...
-      db => 'postgresql',
+      db          => 'postgresql',
       db_password => 'hivepassword',
     }
 
@@ -175,6 +182,7 @@ Add this to the initial example:
       class { 'postgresql::server':
         postgres_password => 'strongpassword',
       }
+      include postgresql::lib::java
       ...
     }
 
