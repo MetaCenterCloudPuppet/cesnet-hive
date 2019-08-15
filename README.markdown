@@ -149,6 +149,7 @@ Add this to the initial example:
     class{"hive":
       ...
       db          => 'mysql',
+      #db          => 'mariadb',
       db_password => 'hivepassword',
     }
 
@@ -160,7 +161,8 @@ Add this to the initial example:
       }
 
       class { 'mysql::bindings':
-        java_enable => true,
+        java_enable       => true,
+        #java_package_name => 'libmariadb-java',
       }
     }
 

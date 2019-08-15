@@ -34,7 +34,18 @@ class hive (
           'javax.jdo.option.ConnectionDriverName' => 'org.apache.derby.jdbc.EmbeddedDriver',
         }
       }
-      'mysql','mariadb': {
+      'mariadb': {
+        $db_properties = {
+          'javax.jdo.option.ConnectionURL' => "jdbc:mariadb://${db_host}/${db_name}",
+          'javax.jdo.option.ConnectionDriverName' => 'org.mariadb.jdbc.Driver',
+          'javax.jdo.option.ConnectionUserName' => $db_user,
+          'javax.jdo.option.ConnectionPassword' => $db_password,
+          'datanucleus.autoCreateSchema' => false,
+          'datanucleus.fixedDatastore' => true,
+          'hive.metastore.schema.verification' => true,
+        }
+      }
+      'mysql': {
         $db_properties = {
           'javax.jdo.option.ConnectionURL' => "jdbc:mysql://${db_host}/${db_name}",
           'javax.jdo.option.ConnectionDriverName' => 'com.mysql.jdbc.Driver',
