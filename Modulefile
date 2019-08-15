@@ -1,5 +1,5 @@
 name 'cesnet-hive'
-version '0.13.0'
+version '0.14.0'
 source 'https://github.com/MetaCenterCloudPuppet/cesnet-hive'
 author 'Frantisek Dvorak <valtri@civ.zcu.cz>'
 license 'MIT'
@@ -9,4 +9,4 @@ project_page 'https://github.com/MetaCenterCloudPuppet/cesnet-hive'
 
 dependency 'puppetlabs/stdlib', '>=1.0.0 <5.0.0'
 dependency 'cesnet/hadoop', '>=0.9.4 <3.0.0'
-dependency 'cesnet/hadoop_lib', '>=0.2.0 <1.0.0'
+dependency 'cesnet/hadoop_lib', '>=0.4.0 <1.0.0'
