@@ -112,6 +112,8 @@ class hive (
       $zoo_properties2 = {
         'hive.zookeeper.client.port' => $zookeeper_port,
       }
+    } else {
+      $zoo_properties2 = {}
     }
     $zoo_properties = merge($zoo_properties1, $zoo_properties2)
   } else {
