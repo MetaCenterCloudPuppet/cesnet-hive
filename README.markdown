@@ -359,6 +359,16 @@ It is recommended to have the *core-site.xml* file instead. *core-site.xml* will
 
 Hive keytab file. Default: '/etc/security/keytab/hive.service.keytab'.
 
+Only used with security (*realm* parameter).
+
+####`keytab_source`
+
+Puppet source for keytab file. Default: undef.
+
+When specified, the Hive keytab file is created using this puppet source(s). Otherwise only persmissions are set on the keytab file.
+
+Only used with security (*realm* parameter).
+
 ####`metastore_hostname`
 
 Hostname of the metastore server. Default: undef.

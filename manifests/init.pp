@@ -23,6 +23,7 @@ class hive (
   $features = {},
   $confdir = $hive::params::confdir,
   $keytab = '/etc/security/keytab/hive.service.keytab',
+  $keytab_source = undef,
   $principal = '::default',
   $schema_dir = undef,
   $schema_file = undef,
