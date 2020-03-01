@@ -110,6 +110,7 @@ We recommend:
 * using zookeeper and set hive parameter *zookeeper\_hostnames* (cesnet-zookeeper module can be used for installation of zookeeper)
 * if collocated with HDFS namenode, add dependency *Class['hadoop::namenode::service'] -> Class['hive::metastore::service']*
 * if not collocated, it is needed to have HDFS namenode running first, or restart Hive metastore later
+* using *hadoop* class plus some other component (or *hadoop::common::config* class) - see [hdfs_hostname](#hdfs_hostname) parameter
 
 <a name="usage"></a>
 ##Usage
