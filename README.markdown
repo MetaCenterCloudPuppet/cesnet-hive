@@ -351,11 +351,19 @@ HDFS hostname (or defaultFS value), if different from core-site.xml Hadoop file.
 
 It is recommended to have the *core-site.xml* file instead. *core-site.xml* will be created when installing any Hadoop component or if you include *hadoop::common::config* class.
 
+####`keytab`
+
+Hive keytab file. Default: '/etc/security/keytab/hive.service.keytab'.
+
 ####`metastore_hostname`
 
 Hostname of the metastore server. Default: undef.
 
 When specified, remote mode is activated (recommended).
+
+####`principal`
+
+Hive Kerberos principal. Default: '::default' (="hive/_HOST@${hive::realm}").
 
 ####`sentry_hostname`
 

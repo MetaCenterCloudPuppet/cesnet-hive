@@ -21,10 +21,18 @@ class hive (
   $db_name = $hive::params::db_name,
   $db_password = undef,
   $features = {},
+  $keytab = '/etc/security/keytab/hive.service.keytab',
+  $principal = '::default',
   $schema_dir = undef,
   $schema_file = undef,
 ) inherits hive::params {
   include ::stdlib
+
+  if $principal == '::default' {
+    $_principal = "hive/_HOST@${hive::realm}"
+  } else {
+    $_principal = $principal
+  }
 
   if $metastore_hostname == $::fqdn {
     case $db {
@@ -124,12 +132,12 @@ class hive (
   if $hive::realm and $hive::realm != '' {
     $sec_common_properties = {
       'hive.metastore.sasl.enabled' => true,
-      'hive.metastore.kerberos.keytab.file' => '/etc/security/keytab/hive.service.keytab',
-      'hive.metastore.kerberos.principal' => "hive/_HOST@${hive::realm}",
+      'hive.metastore.kerberos.keytab.file' => $keytab,
+      'hive.metastore.kerberos.principal' => $_principal,
       'hive.security.metastore.authenticator.manager' => 'org.apache.hadoop.hive.ql.security.HadoopDefaultMetastoreAuthenticator',
       'hive.server2.authentication' => 'KERBEROS',
-      'hive.server2.authentication.kerberos.principal' => "hive/_HOST@${hive::realm}",
-      'hive.server2.authentication.kerberos.keytab' => '/etc/security/keytab/hive.service.keytab',
+      'hive.server2.authentication.kerberos.principal' => $_principal,
+      'hive.server2.authentication.kerberos.keytab' => $keytab,
       'hive.server2.thrift.sasl.qop' => 'auth',
     }
   } else {

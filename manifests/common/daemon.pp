@@ -5,10 +5,8 @@
 class hive::common::daemon {
   include ::hive::user
 
-  $keytab = '/etc/security/keytab/hive.service.keytab'
-
   if $hive::realm and $hive::realm != '' {
-    file { $keytab:
+    file { $::hive::keytab:
       owner => 'hive',
       group => 'hive',
       mode  => '0400',
