@@ -337,6 +337,10 @@ For example (using mysql, from Hive 0.13.0):
 <a name="class-hive"></a>
 ###`hive` class
 
+####`confdir`
+
+Hive config directory. Default: '/etc/hive/conf' or '/etc/hive'.
+
 ####`group`
 
 Hive group on HDFS. Default: 'users' (without sentry), 'hive' (with sentry).

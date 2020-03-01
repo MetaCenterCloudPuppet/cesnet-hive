@@ -21,6 +21,7 @@ class hive (
   $db_name = $hive::params::db_name,
   $db_password = undef,
   $features = {},
+  $confdir = $hive::params::confdir,
   $keytab = '/etc/security/keytab/hive.service.keytab',
   $principal = '::default',
   $schema_dir = undef,
