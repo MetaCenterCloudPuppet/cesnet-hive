@@ -8,5 +8,5 @@ description 'Apache Hive Puppet Module'
 project_page 'https://github.com/MetaCenterCloudPuppet/cesnet-hive'
 
 dependency 'puppetlabs/stdlib', '>=1.0.0 <5.0.0'
-dependency 'cesnet/hadoop', '>=0.9.4 <3.0.0'
+dependency 'cesnet/hadoop', '>=0.9.4 <4.0.0'
 dependency 'cesnet/hadoop_lib', '>=0.4.0 <1.0.0'
