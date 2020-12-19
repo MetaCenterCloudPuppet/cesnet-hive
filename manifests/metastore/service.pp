@@ -4,6 +4,6 @@ class hive::metastore::service {
   service { $hive::daemons['metastore']:
     ensure    => 'running',
     enable    => true,
-    subscribe => [File['hive-site.xml']],
+    subscribe => [File["${hive::confdir}/hive-site.xml"]],
   }
 }
