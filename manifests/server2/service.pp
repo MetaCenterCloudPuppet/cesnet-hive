@@ -4,7 +4,7 @@ class hive::server2::service {
   service { $hive::daemons['server']:
     ensure    => 'running',
     enable    => true,
-    subscribe => [File['hive-site.xml']],
+    subscribe => [File["${hive::confdir}/hive-site.xml"]],
   }
 
   # launch metastore first if collocated with server2
